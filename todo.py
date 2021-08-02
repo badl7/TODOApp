@@ -10,8 +10,22 @@ db = SQLAlchemy(app)
 @app.route("/")
 def index():
     todos = Todo.query.all()
-    
     return render_template("index.html",todos = todos)
+
+@app.route("/complate/<string:id>")
+def complateTodo(id):
+    todo = Todo.query.filter_by(id=id).first()
+
+    if todo.complate == True:
+        todo.complate = False
+    else:
+        todo.complate = True
+
+    #todo.complate = not todo.complate
+
+    
+    db.session.commit()
+    return redirect(url_for("index"))
 
 @app.route("/add", methods = ["POST"])
 def addTodo():
@@ -22,6 +36,13 @@ def addTodo():
 
     return redirect(url_for("index"))
 
+@app.route("/delete/<string:id>")
+def deleteTodo(id):
+    todo = Todo.query.filter_by(id = id).first()
+    db.session.delete(todo)
+    db.session.commit()
+    return redirect(url_for("index"))
+    
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80))
